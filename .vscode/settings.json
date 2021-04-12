@@ -14,5 +14,18 @@
     ],
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
-    }
+    },
+    "cSpell.ignoreWords": [
+        "aws",
+        "cdk",
+        "deploy",
+        "esbuild",
+        "exts",
+        "index",
+        "node",
+        "npx",
+        "prefer",
+        "stepfunctions",
+        "ts"
+    ]
 }
