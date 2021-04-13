@@ -41,11 +41,8 @@
     "lint-and-fix": "eslint . --ext .ts --fix",
     "build": "npm run lint-and-fix && tsc",
     "test": "mocha --require ts-node/register test/**/*.ts",
-    "sam-package": "npm run build && copy .\\package.json .\\dist\\src\\functions",
-    "sam-build": "npm run sam-package && sam build",
-    "sqs-synth": "tsc && cdk synth SQSFunctionTest",
-    "sqs-deploy": "tsc && cdk deploy SQSFunctionTest",
-    "delete-stack": "aws cloudformation delete-stack --stack-name lambda-base --region eu-west-2"
+    "cdk-synth": "tsc && cdk synth",
+    "cdk-deploy": "tsc && cdk deploy"
   },
   "repository": {
     "type": "git",

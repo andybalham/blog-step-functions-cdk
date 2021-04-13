@@ -16,11 +16,12 @@ export const handleAggregateIdentityResults = async (
 
 export const handlePerformAffordabilityCheck = async (
   application: Application
-): Promise<boolean> => {
+): Promise<string> => {
   const applicantIncomes = application.applicants.map((app) => app.income);
   const totalIncome = applicantIncomes.reduce((tot, inc) => tot + inc);
-  const incomeMultiplier = 3;
-  return totalIncome * incomeMultiplier > application.loanAmount;
+  if (totalIncome * 2 >= application.loanAmount) return 'GOOD';
+  if (totalIncome * 3 >= application.loanAmount) return 'POOR';
+  return 'BAD';
 };
 
 interface SendEmailRequest {

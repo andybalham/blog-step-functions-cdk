@@ -49,8 +49,13 @@
       "Choices": [
         {
           "Variable": "$.affordabilityResult",
-          "BooleanEquals": false,
+          "StringEquals": "POOR",
           "Next": "PerformReferTasks"
+        },
+        {
+          "Variable": "$.affordabilityResult",
+          "StringEquals": "BAD",
+          "Next": "PerformDeclineTasks"
         }
       ],
       "Default": "PerformAcceptTasks"
