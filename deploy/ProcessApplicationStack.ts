@@ -20,22 +20,21 @@ export default class ProcessApplicationStack extends cdk.Stack {
     const performIdentityCheckFunction = this.addFunction('PerformIdentityCheck');
     const aggregateIdentityResultsFunction = this.addFunction('AggregateIdentityResults');
     // const performAffordabilityCheckFunction = this.addFunction('PerformAffordabilityCheck');
-    const sendEmailFunction = this.addFunction('SendEmail');
+    // const sendEmailFunction = this.addFunction('SendEmail');
     // const notifyUnderwriterFunction = this.addFunction('NotifyUnderwriter');
 
     // State machine
+
+    // stateMachineType: sfn.StateMachineType.EXPRESS,
+    // logs: {
+    //   destination: new logs.LogGroup(this, 'ProcessApplicationLogGroup'),
+    //   level: sfn.LogLevel.ALL,
+    // },
 
     const processApplicationStateMachine = new sfn.StateMachine(
       this,
       'ProcessApplicationStateMachine',
       {
-        stateMachineType: sfn.StateMachineType.STANDARD,
-        // stateMachineType: sfn.StateMachineType.EXPRESS,
-        // logs: {
-        //   destination: new logs.LogGroup(this, 'ProcessApplicationLogGroup'),
-        //   level: sfn.LogLevel.ALL,
-        // },
-
         definition: sfn.Chain.start(
           new sfn.Map(this, 'PerformIdentityChecks', {
             inputPath: '$.application',
@@ -45,37 +44,40 @@ export default class ProcessApplicationStack extends cdk.Stack {
             .iterator(
               new sfnTasks.LambdaInvoke(this, 'PerformIdentityCheck', {
                 lambdaFunction: performIdentityCheckFunction,
-                outputPath: '$.Payload',
-              }).next(
-                new sfnTasks.LambdaInvoke(this, 'AggregateIdentityResults', {
-                  lambdaFunction: aggregateIdentityResultsFunction,
-                  inputPath: '$.identityResults',
-                  outputPath: '$.Payload',
-                  resultPath: '$.overallIdentityResult',
-                })
-              )
+                payloadResponseOnly: true,
+              })
+            )
+            .next(
+              new sfnTasks.LambdaInvoke(this, 'AggregateIdentityResults', {
+                lambdaFunction: aggregateIdentityResultsFunction,
+                payloadResponseOnly: true,
+                inputPath: '$.identityResults',
+                resultPath: '$.overallIdentityResult',
+              })
             )
             .next(
               new sfn.Choice(this, 'EvaluateIdentityResults')
                 .when(
                   sfn.Condition.booleanEquals('$.overallIdentityResult', false),
-                  new sfn.Parallel(this, 'PerformDeclineTasks').branch(
-                    new sfnTasks.LambdaInvoke(this, 'SendDeclineEmail', {
-                      lambdaFunction: sendEmailFunction,
-                      // TODO 13Apr21: How do we specify parameters?
-                      payload: sfn.TaskInput.fromObject({
-                        emailType: 'Decline',
-                        'application.$': '$.application',
-                      }),
-                      outputPath: '$.Payload',
-                    })
-                  )
+                  new sfn.Pass(this, 'PerformDeclineTasks')
                 )
                 .otherwise(new sfn.Pass(this, 'Continue'))
             )
         ),
       }
     );
+
+    // new sfn.Parallel(this, 'PerformDeclineTasks').branch(
+    //   new sfnTasks.LambdaInvoke(this, 'SendDeclineEmail', {
+    //     lambdaFunction: sendEmailFunction,
+    //     // TODO 13Apr21: How do we specify parameters?
+    //     payload: sfn.TaskInput.fromObject({
+    //       emailType: 'Decline',
+    //       'application.$': '$.application',
+    //     }),
+    //     outputPath: '$.Payload',
+    //   })
+    // )
 
     // TODO 12Apr21: What about common sub-states? E.g., if we wanted to jump to 'Decline' from multiple points.
     // https://docs.aws.amazon.com/cdk/api/latest/docs/aws-stepfunctions-readme.html#state-machine-fragments
