@@ -17,7 +17,7 @@
     }
   },
   "rules": {
-    "prettier/prettier": ["warn"],
+    "prettier/prettier": ["off"],
     "indent": ["error", 2, {"SwitchCase": 1}],
     "semi": ["error", "always"],
     "@typescript-eslint/interface-name-prefix": ["off"],

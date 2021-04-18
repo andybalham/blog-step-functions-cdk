@@ -10,16 +10,6 @@ export const handlePerformIdentityCheck = async (
   success: applicant.lastName !== 'Potato',
 });
 
-/*
-{
-  "error": "States.Runtime",
-  "cause": "An error occurred while executing the state 'AggregateIdentityResults' (entered at the event id #13). Invalid path '$.Payload' : No results for path: $['Payload']"
-}
-*/
-export const handleAggregateIdentityResults = async (
-  identityCheckResults: IdentityCheckResult[]
-): Promise<boolean> => identityCheckResults.every((icr) => icr.success);
-
 export const handlePerformAffordabilityCheck = async (
   application: Application
 ): Promise<string> => {
